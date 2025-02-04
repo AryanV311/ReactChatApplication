@@ -4,7 +4,7 @@ import { Auth } from './pages/auth/auth';
 import { Chat } from './pages/chat/chat';
 import { Profile } from './pages/profile/profile';
 import { useAppStore } from './store';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { AppContext } from './context/AppContext';
 
@@ -30,11 +30,16 @@ function App() {
   const { userInfo, setUserInfo } = useAppStore();
   const { api_url } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (hasFetched.current) return; // Prevent duplicate calls
+    hasFetched.current = true; // Mark as fetched
+    
     const getUserData = async () => {
       try {
-        const response = await axios.get(`${api_url}/api/auth/user-info`, { withCredentials: true });
+        const response = await axios.get(`${api_url}/api/auth/user-info`, { withCredentials: true});
+        console.log("_____user___", response);
         if (response.status === 200 && response.data.id) {
           setUserInfo(response.data);
         } else {

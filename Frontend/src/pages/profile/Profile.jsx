@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useAppStore } from "../../store/";
 import { IoArrowBack } from "react-icons/io5";
 import { Avatar } from "@/components/ui/avatar";
@@ -7,21 +7,111 @@ import { colors, getColor } from "@/lib/utils";
 import { FaTrash, FaPlus  } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { AppContext } from "@/context/AppContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export const Profile = () => {
-  const { userInfo } = useAppStore();
+  const { userInfo,setUserInfo } = useAppStore();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [image, setImage] = useState(null);
   const [hovered, setHovered] = useState(false)
   const [selectedColor, setSelectedColor] = useState(0)
+  const navigate = useNavigate()
 
-  const saveChanges = async () => {}
+  const fileInputRef = useRef(null)
+
+  const { api_url} = useContext(AppContext)
+
+useEffect(() => {
+  if(userInfo.profileSetup){
+    setFirstName(userInfo.firstName);
+    setLastName(userInfo.lastName);
+    setSelectedColor(userInfo.color);
+   if(userInfo.image){
+    setImage(`${api_url}/${userInfo.image}`)
+    console.log(userInfo);
+   }
+  }
+},[userInfo])
+
+  const validateProfile = () => {
+    if(!firstName){
+      toast.error("First Name is required")
+      return false
+    }
+    if(!lastName){
+      toast.error("Last Name is required")
+      return false
+    }
+
+    return true
+  }
+
+  const saveChanges = async () => {
+    if(validateProfile()) {
+      try {
+        const  response = await axios.post(`${api_url}/api/auth/update-profile`,{firstName, lastName, color:selectedColor},{withCredentials:true})
+        console.log(response);
+        if(response.status === 200 && response.data){
+          setUserInfo({...response.data})
+          toast.success("Profile updated successfully")
+          navigate("/chat")
+        } 
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
+  const handleNavigate = () => {
+    if(userInfo.profileSetup){
+      navigate("/chat")
+    } else{
+      toast.error("Please setup profile.")
+    }
+  }
+
+  const handleFileInputClick = async() => {
+    fileInputRef.current.click();
+  }
+
+  const handleImageChange = async(e) => {
+    const file = e.target.files[0]
+    console.log({file});
+    if(file){
+      const formData = new FormData();
+      formData.append("profile-image",file)
+      const response = await axios.post(`${api_url}/api/auth/add-profile-image`,formData,{withCredentials:true})
+
+      if(response.status === 200 && response.data.image){
+        setUserInfo({...userInfo, image:response.data.image})
+        toast.success("Image uploaded successfully")
+      }
+    }
+  }
+
+  const handleDeletImage = async() => {
+    try {
+      const response = await axios.delete(`${api_url}/api/auth/remove-profile-image`,{withCredentials:true})
+
+    if(response.status == 200){
+      setUserInfo({...userInfo, image:null})
+      toast.success("Image removed successfully");
+      setImage(null);
+    }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
 
   return (
     <div className="bg-[#1b1c24] h-[100vh] flex justify-center items-center flex-col gap-10">
      <div className="flex flex-col gap-10 w-[80vw] md:w-max">
-      <div>
+      <div onClick={handleNavigate}>
         <IoArrowBack className="text-4xl lg:text-6xl text-white/60 cursor-pointer" />
       </div>
       <div className="grid grid-cols-2">
@@ -42,7 +132,7 @@ export const Profile = () => {
             </Avatar>
             {
               hovered && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 ring-fuchsia-50 rounded-full">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 ring-fuchsia-50 rounded-full" onClick={image ? handleDeletImage : handleFileInputClick}>
                   {
                     image ? (
                       <FaTrash className="text-white text-3xl cursor-pointer" /> 
@@ -52,6 +142,7 @@ export const Profile = () => {
                   }
                 </div>
               )}
+              <input type="file" ref={fileInputRef} className="hidden" onChange={handleImageChange} name="profile-image" accept=".png, .jpg, .jpeg, .svg, .webp" />
           </div>
             <div className="flex min-w-32 md:min-w-64 flex-col gap-5 items-center justify-center text-white">
               <div className="w-full">

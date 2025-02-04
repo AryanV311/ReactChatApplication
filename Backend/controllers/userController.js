@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import UserModel from "../models/userModel.js";
 import {compare, genSalt, hash}  from "bcrypt";
+import {renameSync, unlinkSync} from "fs"
+import userModel from "../models/userModel.js";
 
 const maxAge = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 
@@ -38,7 +40,7 @@ export const signup = async (req, res, next) => {
       maxAge,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
+      sameSite: "Lax",
     });
 
     return res.status(201).json({
@@ -81,7 +83,7 @@ export const login = async (req, res, next) => {
       maxAge,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
+      sameSite: "Lax",
     });
 
     return res.status(200).json({
@@ -119,6 +121,100 @@ export const getUserInfo = async(req,res) => {
         color: userData.color,
     });
     
+  } catch (error) {
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+
+export const updateProfile = async(req,res) => {
+  try {
+    const {userId} = req
+    const { firstName, lastName, color } = req.body;
+
+    if(!firstName || !lastName){
+      return res.status(400).send("Firstname and lastname is required.")
+    }
+
+    const userData = await UserModel.findByIdAndUpdate(userId,{
+      firstName, lastName, color, profileSetup:true
+    },{new:true, runValidators:true})
+
+    if(!userData){
+      return res.status(404).send("user cannot be update!");
+    }
+
+    return res.status(200).json({
+        id: userData.id,
+        email: userData.email,
+        profileSetup: userData.profileSetup,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        image: userData.image,
+        color: userData.color,
+    });
+    
+  } catch (error) {
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+export const updateProfileImage = async(req,res) => {
+  try {
+   if(!req.file){
+    return res.status(400).send("file is not uploaded.")
+   }
+
+   const date = Date.now()
+   let fileName = "uploads/profiles/" + date +req.file.originalname
+   renameSync(req.file.path, fileName)
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      req.userId,
+      {image:fileName},
+      {new:true, runValidators:true}
+    )
+
+    console.log("updatedUser", updatedUser);
+
+    return res.status(200).json({
+        image: updatedUser.image,
+    });
+    
+  } catch (error) {
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+
+export const removeProfileImage = async(req,res) => {
+  try {
+    const {userId} = req
+    
+    const user = await userModel.findById(userId)
+
+    if(!user){
+      return res.status(404).send("User not found.")
+    }
+
+    if(user.image){
+      unlinkSync(user.image)
+    }
+
+    user.image = null;
+    await user.save();
+
+    return res.status(200).send("Profile image removed successfully");
+    
+  } catch (error) {
+    return res.status(500).send("Internal Server Error")
+  }
+}
+
+export const logout = async(req,res) => {
+  try {  
+    res.cookie("jwt","",{maxAge:1, secure:true, sameSite:"None"})
+    return res.status(200).send("Logout successfully!")
   } catch (error) {
     return res.status(500).send("Internal Server Error")
   }

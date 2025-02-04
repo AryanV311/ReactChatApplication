@@ -5,7 +5,6 @@ import { createContext, useState } from "react";
 export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
-
     const api_url = "http://localhost:5000";
 
     const value= {
