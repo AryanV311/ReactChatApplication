@@ -1,9 +1,28 @@
 /* eslint-disable react/prop-types */
 
+import { useContext, useEffect } from "react";
 import { NewDm } from "./components/new-dm/NewDm";
 import { ProfileInfo } from "./components/profile-info/ProfileInfo";
+import axios from "axios";
+import { AppContext } from "@/context/AppContext";
+import { useAppStore } from "@/store";
+import { ContactList } from "@/components/ContactList";
 
 export const ContactContainer = () => {
+  const { api_url } = useContext(AppContext);
+  const {setDirectMessagesContacts, directMessagesContacts} = useAppStore()
+
+  useEffect(() => {
+    const getContacts = async() => {
+      const response = await axios.get(`${api_url}/api/contacts/get-contact-for-dm`,{withCredentials:true})
+      if(response.data.contacts){
+        setDirectMessagesContacts(response.data.contacts)
+      }
+    }
+
+    getContacts()
+  },[])
+
   return (
     <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20cw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full">
         <div className="pt-3">
@@ -14,6 +33,9 @@ export const ContactContainer = () => {
                 <Title text="Direct Messages" />
                 <NewDm />
             </div>
+        </div>
+        <div className="max-h[38vh] overflow-y-auto scrollbar-hidden">
+          <ContactList contacts={directMessagesContacts} />
         </div>
         <div className="my-5">
             <div className="flex items-center justify-between pr-10">

@@ -1,4 +1,3 @@
-import App from "@/App";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AppContext } from "@/context/AppContext";
 import { getColor } from "@/lib/utils";
@@ -7,6 +6,8 @@ import { useContext } from "react";
 import { RiCloseFill } from "react-icons/ri";
 export const ChatHeader = () => {
   const { closeChat, selectedChatData, selectedChatType } = useAppStore();
+  // console.log("selectedChat:::--",selectedChatData);
+  // console.log("selectedTypeee:::--",selectedChatType);
   const { api_url } = useContext(AppContext);
 
   return (

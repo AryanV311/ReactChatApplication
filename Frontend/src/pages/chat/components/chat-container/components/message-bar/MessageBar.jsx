@@ -1,10 +1,16 @@
+import { SocketContext } from "@/context/SocketContext"
+import { useAppStore } from "@/store"
 import EmojiPicker from "emoji-picker-react"
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import {GrAttachment} from "react-icons/gr"
 import { IoSend } from "react-icons/io5"
 import { RiEmojiStickerLine } from "react-icons/ri"
 export const MessageBar = () => {
     const emojiRef = useRef()
+    const socket = useContext(SocketContext)
+    const {selectedChatData, selectedChatType, userInfo} = useAppStore()
+
+    console.log("messageSelected:::",selectedChatType);
     const [message, setMessage] = useState("")
     const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
 
@@ -24,15 +30,25 @@ export const MessageBar = () => {
         setMessage((msg) => msg + emoji.emoji)
     }
 
-    const handleSendMessage = () => {
-
+    
+    const handleSendMessage = async() => {
+        console.log("selected::::",selectedChatType);
+        if(selectedChatType === "contact"){
+            socket.emit("sendMessage",{
+                sender:userInfo.id,
+                content:message,
+                recipient:selectedChatData._id,
+                messageType:"text",
+                fileUrl:undefined,
+            })
+        }
     }
 
 
   return (
     <div className="h-[10vh] bg-[#1c1d25] flex justify-center items-center px-8 mb-6 gap-6">
         <div className="flex-1 flex bg-[#2a2b33] rounded-md items-center gap-5 pr-5">
-            <input type="text" className="felx-1 p-5 bg-transparent rounded-md focus:border-none focus:outline-none" placeholder="Enter Message" value={message} onChange={(e) => e.target.value}/>
+            <input type="text" className="felx-1 p-5 bg-transparent rounded-md focus:border-none focus:outline-none" placeholder="Enter Message" value={message} onChange={(e) =>setMessage(e.target.value)}/>
             <button className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all">
                 <GrAttachment className="text-2xl" />
             </button>

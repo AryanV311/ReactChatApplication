@@ -1,4 +1,6 @@
+import mongoose from "mongoose";
 import userModel from "../models/userModel.js";
+import messageModel from "../models/messageModel.js";
 
 
 
@@ -26,5 +28,66 @@ export const searchContacts = async (req, res) => {
     return res.status(200).json({ contacts });
   } catch (error) {
     return res.status(500).send("Internal Server Error");
+  }
+};
+
+export const getContactsForDMList = async (req, res, next) => {
+  try {
+    let { userId } = req;
+    userId = new mongoose.Types.ObjectId(userId);
+
+    const contacts = await messageModel.aggregate([
+      {
+        $match: {
+          $or: [{ sender: userId }, { recipient: userId }],
+        },
+      },
+      {
+        $sort: { timestamp: -1 }, // Sort messages by latest timestamp first
+      },
+      {
+        $group: {
+          _id: {
+            $cond: {
+              if: { $eq: ["$sender", userId] },
+              then: "$recipient",
+              else: "$sender",
+            },
+          },
+          lastMessageTime: { $first: "$timestamp" },
+        },
+      },
+      {
+        $lookup: {
+          from: "users", // Ensure the collection name matches your DB
+          localField: "_id",
+          foreignField: "_id",
+          as: "contactInfo",
+        },
+      },
+      {
+        $unwind: "$contactInfo",
+      },
+      {
+        $project: {
+          _id: 1,
+          lastMessageTime: 1,
+          email: "$contactInfo.email",
+          firstName: "$contactInfo.firstName",
+          lastName: "$contactInfo.lastName",
+          image: "$contactInfo.image",
+          color: "$contactInfo.color",
+        },
+      },
+      {
+        $sort: { lastMessageTime: -1 }, // Sort contacts by last message time
+      },
+    ]);
+
+
+    return res.status(200).json({ contacts });
+  } catch (error) {
+    console.error("Error fetching contacts:", error);
+    return res.status(400).json({ error: error.message });
   }
 };

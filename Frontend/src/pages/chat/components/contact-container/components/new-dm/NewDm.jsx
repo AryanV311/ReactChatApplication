@@ -52,7 +52,7 @@ export const NewDm = () => {
     }
   };
 
-  const selectNewContact = (contact) => {
+  const selectNewContact = (contact) => {  
     setOpenNewContactModel(false)
     setSelectedChatData(contact)
     setSelectedChatType("contact")
