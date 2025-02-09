@@ -40,11 +40,17 @@ export const SocketProvider = ({ children }) => {
                 }
             }
 
-            // console.log("revendbcmsc", handleRecieveMessage());
+            const handleRecieveChannelMessage = async(message) => {
+                const {selectedChatData, selectedChatType, addMessage} = useAppStore.getState();
+
+                if(selectedChatType !== undefined && selectedChatData._id === message.channelId){
+                    addMessage(message)
+                }
+            }
+
             socket.current.on("recieveMessage",handleRecieveMessage)
-            // socket.current.on("disconnect", () => {
-            //     console.log("Disconnected from the server");
-            // });
+            socket.current.on("recieve-channel-message",handleRecieveChannelMessage)
+            
         }
 
         return () => {

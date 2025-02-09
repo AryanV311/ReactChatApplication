@@ -6,8 +6,6 @@ import { useContext } from "react";
 import { RiCloseFill } from "react-icons/ri";
 export const ChatHeader = () => {
   const { closeChat, selectedChatData, selectedChatType } = useAppStore();
-  // console.log("selectedChat:::--",selectedChatData);
-  // console.log("selectedTypeee:::--",selectedChatType);
   const { api_url } = useContext(AppContext);
 
   return (
@@ -15,30 +13,37 @@ export const ChatHeader = () => {
       <div className="flex gap-5 items-center w-full justify-between">
         <div className="flex gap-3 items-center justify-center">
           <div className="w-12 h-12 relative ">
-            <Avatar className="h-12 w-12 rounded-full overflow-hidden">
-              {selectedChatData.image ? (
-                <AvatarImage
-                  src={`${api_url}/${selectedChatData.image}`}
-                  alt="profile"
-                  className="object-cover h-full w-full bg-black"
-                />
-              ) : (
-                <div
-                  className={`uppercase h-12 w-12 text-lg border-[1px] flex items-center justify-center rounded-full ${getColor(
-                    selectedChatData.color
-                  )}`}
-                >
-                  {selectedChatData.firstName
-                    ? selectedChatData.firstName.split("").shift()
-                    : selectedChatData.email.split("").shift()}
-                </div>
-              )}
-            </Avatar>
+            {selectedChatType === "contact" ? (
+              <Avatar className="h-12 w-12 rounded-full overflow-hidden">
+                {selectedChatData.image ? (
+                  <AvatarImage
+                    src={`${api_url}/${selectedChatData.image}`}
+                    alt="profile"
+                    className="object-cover h-full w-full bg-black"
+                  />
+                ) : (
+                  <div
+                    className={`uppercase h-12 w-12 text-lg border-[1px] flex items-center justify-center rounded-full ${getColor(
+                      selectedChatData.color
+                    )}`}
+                  >
+                    {selectedChatData.firstName
+                      ? selectedChatData.firstName.split("").shift()
+                      : selectedChatData.email.split("").shift()}
+                  </div>
+                )}
+              </Avatar>
+            ) : (
+              <div className="bg-[#ffffff22] h-10 w-10 flex items-center justify-center rounded-full">
+                #
+              </div>
+            )}
           </div>
           <div>
-            {
-                selectedChatType === "contact" && `${selectedChatData.firstName} ${selectedChatData.lastName}`
-            }
+            {selectedChatType === "channel" && selectedChatData.name}
+            {selectedChatType === "contact" && selectedChatData.firstName
+              ? `${selectedChatData.firstName} ${selectedChatData.lastName}`
+              : selectedChatData.email}
           </div>
         </div>
         <div className="flex items-center justify-center gap-5">

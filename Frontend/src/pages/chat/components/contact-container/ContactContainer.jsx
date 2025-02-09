@@ -1,16 +1,19 @@
 /* eslint-disable react/prop-types */
 
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { NewDm } from "./components/new-dm/NewDm";
 import { ProfileInfo } from "./components/profile-info/ProfileInfo";
 import axios from "axios";
 import { AppContext } from "@/context/AppContext";
 import { useAppStore } from "@/store";
 import { ContactList } from "@/components/ContactList";
+import { CreateChannel } from "./components/create-channel/CreateChannel";
 
 export const ContactContainer = () => {
   const { api_url } = useContext(AppContext);
-  const {setDirectMessagesContacts, directMessagesContacts} = useAppStore()
+  const {setDirectMessagesContacts, directMessagesContacts, channels, setChannels} = useAppStore()
+  console.log("chsnnnnelele:::", channels);
+
 
   useEffect(() => {
     const getContacts = async() => {
@@ -20,8 +23,17 @@ export const ContactContainer = () => {
       }
     }
 
+    const getChannels = async() => {
+      const response = await axios.get(`${api_url}/api/channel/get-user-channel`,{withCredentials:true})
+      console.log("channeleleem:::",response.data.channels);
+      if(response.data.channels){
+        setChannels(response.data.channels)
+      }
+    }
+
+    getChannels()
     getContacts()
-  },[])
+  },[setChannels, setDirectMessagesContacts])
 
   return (
     <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20cw] bg-[#1b1c24] border-r-2 border-[#2f303b] w-full">
@@ -40,7 +52,11 @@ export const ContactContainer = () => {
         <div className="my-5">
             <div className="flex items-center justify-between pr-10">
                 <Title text="Channels" />
+                <CreateChannel />
             </div>
+            <div className="max-h[38vh] overflow-y-auto scrollbar-hidden">
+          <ContactList contacts={channels} isChannel={true} />
+        </div>
         </div>
         <ProfileInfo />
     </div>
