@@ -53,7 +53,6 @@ const validateLogin = () => {
 const handleLogin = async() => {
   if(validateLogin()){
       const response = await axios.post(`${api_url}/api/auth/login`,{email, password}, {withCredentials:true})
-      console.log("respmse:::",response);
       if(response.data.user.id){
         setUserInfo(response.data.user)
         if(response.data.user.profileSetup) navigate("/chat")
@@ -66,7 +65,6 @@ const handleLogin = async() => {
 const handleSignup = async() => {
     if(validateSignup()){
         const response = await axios.post(`${api_url}/api/auth/signup`, {email, password},{withCredentials:true})
-        console.log(response);
         if(response.status === 201){
           setUserInfo(response.data.user)
             navigate("/profile")

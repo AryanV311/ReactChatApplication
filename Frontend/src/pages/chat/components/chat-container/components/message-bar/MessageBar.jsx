@@ -34,7 +34,6 @@ export const MessageBar = () => {
   };
 
   const handleSendMessage = async () => {
-    console.log("selected::::", selectedChatType);
     if (selectedChatType === "contact") {
       socket.emit("sendMessage", {
         sender: userInfo.id,
@@ -78,7 +77,6 @@ export const MessageBar = () => {
            }
          
         );
-        // console.log({response});
 
         if (response.status === 200 && response.data) {
           setIsUploading(false)
@@ -93,7 +91,7 @@ export const MessageBar = () => {
           } else if(selectedChatType === "channel"){
             socket.emit("send-channel-message", {
               sender: userInfo.id,
-              content: message,
+              content: undefined,
               messageType: "file",
               fileUrl: response.data.filePath,
               channelId:selectedChatData._id
@@ -114,12 +112,12 @@ export const MessageBar = () => {
       <div className="flex-1 flex bg-[#2a2b33] rounded-md items-center gap-5 pr-5">
         <input
           type="text"
-          className="felx-1 p-5 bg-transparent rounded-md focus:border-none focus:outline-none"
+          className="felx-1 p-5 bg-transparent rounded-md focus:border-none focus:outline-none flex-1"
           placeholder="Enter Message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
-        <button className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all">
+        <button className="text-neutral-500 focus:border-none focus:outline-none items-end focus:text-white duration-300 transition-all">
           <GrAttachment className="text-2xl" onClick={handleAttachmentClick} />
         </button>
         <input

@@ -2,9 +2,6 @@ import mongoose from "mongoose";
 import userModel from "../models/userModel.js";
 import messageModel from "../models/messageModel.js";
 
-
-
-
 export const searchContacts = async (req, res) => {
   try {
     const { searchTerm } = req.body;
@@ -13,7 +10,10 @@ export const searchContacts = async (req, res) => {
       return res.status(400).send("searchTerm is required");
     }
 
-    const sanitizedSearchToken = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const sanitizedSearchToken = searchTerm.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      "\\$&"
+    );
     const regex = new RegExp(sanitizedSearchToken, "i");
 
     const contacts = await userModel.find({
@@ -84,7 +84,6 @@ export const getContactsForDMList = async (req, res, next) => {
       },
     ]);
 
-
     return res.status(200).json({ contacts });
   } catch (error) {
     console.error("Error fetching contacts:", error);
@@ -94,12 +93,15 @@ export const getContactsForDMList = async (req, res, next) => {
 
 export const getAllContacts = async (req, res) => {
   try {
-    const users = await userModel.find({ _id :{$ne: req.userId}}, "firstName, lastName, _id, email")
+    const users = await userModel.find(
+      { _id: { $ne: req.userId } },
+      "firstName, lastName, _id, email"
+    );
 
     const contacts = users.map((user) => ({
-      label: user.firstName ? `${user.firstName} ${user.lastName}`: user.email,
+      label: user.firstName ? `${user.firstName} ${user.lastName}` : user.email,
       value: user._id,
-    }))
+    }));
 
     return res.status(200).json({ contacts });
   } catch (error) {

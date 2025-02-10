@@ -1,12 +1,12 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import './App.css';
-import { Auth } from './pages/auth/auth';
-import { Chat } from './pages/chat/chat';
-import { Profile } from './pages/profile/profile';
-import { useAppStore } from './store';
-import { useContext, useEffect, useRef, useState } from 'react';
-import axios from 'axios';
-import { AppContext } from './context/AppContext';
+import { Navigate, Route, Routes } from "react-router-dom";
+import "./App.css";
+import { Auth } from "./pages/auth/auth";
+import { Chat } from "./pages/chat/chat";
+import { Profile } from "./pages/profile/profile";
+import { useAppStore } from "./store";
+import { useContext, useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { AppContext } from "./context/AppContext";
 
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
@@ -35,11 +35,13 @@ function App() {
   useEffect(() => {
     if (hasFetched.current) return; // Prevent duplicate calls
     hasFetched.current = true; // Mark as fetched
-    
+
     const getUserData = async () => {
       try {
-        const response = await axios.get(`${api_url}/api/auth/user-info`, { withCredentials: true});
-        console.log("_____user___", response);
+        const response = await axios.get(`${api_url}/api/auth/user-info`, {
+          withCredentials: true,
+        });
+
         if (response.status === 200 && response.data.id) {
           setUserInfo(response.data);
         } else {
@@ -67,9 +69,30 @@ function App() {
   return (
     <div>
       <Routes>
-        <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
-        <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
-        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route
+          path="/auth"
+          element={
+            <AuthRoute>
+              <Auth />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <PrivateRoute>
+              <Chat />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/auth" />} />
       </Routes>
     </div>

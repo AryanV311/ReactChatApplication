@@ -66,6 +66,8 @@ const setupSocket = (server) => {
 
         const finalData = { ...messageData._doc, channelId:channel._id}
 
+        console.log("finalDataaaaa",finalData);
+
         if(channel && channel.members){
             channel.members.forEach((member) => {
                 const memberSocketId = userSocketMap.get(member._id.toString())
@@ -73,7 +75,7 @@ const setupSocket = (server) => {
                     io.to(memberSocketId).emit("recieve-channel-message",finalData)
                 }
             })
-
+            
             const adminSocketId = userSocketMap.get(channel.admin._id.toString())
             if(adminSocketId){
                 io.to(adminSocketId).emit("recieve-channel-message",finalData)

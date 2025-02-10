@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import Lottie from "lottie-react";
-import animationData from "../../../../../../assets/lottie-json.json"
+import animationData from "../../../../../../assets/lottie-json.json";
 import axios from "axios";
 import { AppContext } from "@/context/AppContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,26 +24,24 @@ import { getColor } from "@/lib/utils";
 import { useAppStore } from "@/store";
 
 export const NewDm = () => {
-  const {setSelectedChatType, setSelectedChatData} = useAppStore()
+  const { setSelectedChatType, setSelectedChatData } = useAppStore();
   const [openNewContactModal, setOpenNewContactModel] = useState(false);
   const [serachedContacts, setSearchedContacts] = useState([]);
-  const {api_url} = useContext(AppContext)
+  const { api_url } = useContext(AppContext);
 
   const searchContacts = async (searchTerm) => {
-    console.log("searchTerm____", searchTerm);
     try {
       if (!searchTerm.trim()) {
         setSearchedContacts([]);
         return;
       }
-  
+
       const response = await axios.post(
         `${api_url}/api/contacts/search`,
         { searchTerm }, // Fix spelling here
         { withCredentials: true }
       );
-  
-      console.log("++++", response);
+
       if (response.status === 200 && response.data.contacts) {
         setSearchedContacts(response.data.contacts);
       }
@@ -52,13 +50,13 @@ export const NewDm = () => {
     }
   };
 
-  const selectNewContact = (contact) => {  
-    setOpenNewContactModel(false)
-    setSelectedChatData(contact)
-    setSelectedChatType("contact")
-    setSearchedContacts([])
-  }
-  
+  const selectNewContact = (contact) => {
+    setOpenNewContactModel(false);
+    setSelectedChatData(contact);
+    setSelectedChatType("contact");
+    setSearchedContacts([]);
+  };
+
   return (
     <>
       <TooltipProvider>
@@ -88,55 +86,55 @@ export const NewDm = () => {
             />
           </div>
 
-          {
-            serachedContacts.length > 0 && (
-              <ScrollArea className="h-[250px]">
-            {
-              serachedContacts.map((contact) => (        
-                <div key={contact._id} className="flex gap-3 items-center cursor-pointer mb-2" onClick={() => selectNewContact(contact)}>
-                   <div className="w-12 h-12 relative ">
-                            <Avatar className="h-12 w-12 rounded-full overflow-hidden">
-                              {contact.image ? (
-                                <AvatarImage
-                                  src={`${api_url}/${contact.image}`}
-                                  alt="profile"
-                                  className="object-cover h-full w-full bg-black"
-                                />
-                              ) : (
-                                <div
-                                  className={`uppercase h-12 w-12 text-lg border-[1px] flex items-center justify-center rounded-full ${getColor(
-                                    contact.color
-                                  )}`}
-                                >
-                                  {contact.firstName
-                                    ? contact.firstName.split("").shift()
-                                    : contact.email.split("").shift()}
-                                </div>
-                              )}
-                            </Avatar>
-                          </div>
-                          <div className="flex flex-col">
-                            <span>
-                            {contact.firstName && contact.lastName
-                              ? `${contact.firstName} ${contact.lastName}`
-                              : contact.email}
-                            </span>
-                            <span className="text-xs">{contact.email}</span>
-                          </div>
+          {serachedContacts.length > 0 && (
+            <ScrollArea className="h-[250px]">
+              {serachedContacts.map((contact) => (
+                <div
+                  key={contact._id}
+                  className="flex gap-3 items-center cursor-pointer mb-2"
+                  onClick={() => selectNewContact(contact)}
+                >
+                  <div className="w-12 h-12 relative ">
+                    <Avatar className="h-12 w-12 rounded-full overflow-hidden">
+                      {contact.image ? (
+                        <AvatarImage
+                          src={`${api_url}/${contact.image}`}
+                          alt="profile"
+                          className="object-cover h-full w-full bg-black"
+                        />
+                      ) : (
+                        <div
+                          className={`uppercase h-12 w-12 text-lg border-[1px] flex items-center justify-center rounded-full ${getColor(
+                            contact.color
+                          )}`}
+                        >
+                          {contact.firstName
+                            ? contact.firstName.split("").shift()
+                            : contact.email.split("").shift()}
+                        </div>
+                      )}
+                    </Avatar>
+                  </div>
+                  <div className="flex flex-col">
+                    <span>
+                      {contact.firstName && contact.lastName
+                        ? `${contact.firstName} ${contact.lastName}`
+                        : contact.email}
+                    </span>
+                    <span className="text-xs">{contact.email}</span>
+                  </div>
                 </div>
-              ))
-            }
-          </ScrollArea>
-            )
-          }
-          
+              ))}
+            </ScrollArea>
+          )}
+
           {serachedContacts.length <= 0 && (
             <div className="flex-1 md:bg-[#181920] md:flex md:mt-0 sm:flex flex-col justify-center items-center duration-1000 transition-all">
-              <Lottie 
+              <Lottie
                 animationData={animationData}
                 loop={true}
                 autoPlay={true}
-                style={{ height: 100, width: 100}}
+                style={{ height: 100, width: 100 }}
               />
               <div className="text-opacity-80 text-white flex flex-col gap-5 items-center mt-5 lg:text-2xl text-xl transition-all duration-300 text-center">
                 <h3 className="poppins-medium">
