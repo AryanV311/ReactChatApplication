@@ -15,7 +15,6 @@ export const SocketProvider = ({ children }) => {
   const socket = useRef(null);
   const { userInfo } = useAppStore();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  console.log(backendUrl);
 
   useEffect(() => {
     if (userInfo && !socket.current) {

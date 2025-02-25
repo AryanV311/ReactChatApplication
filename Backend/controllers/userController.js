@@ -3,12 +3,13 @@ import UserModel from "../models/userModel.js";
 import {compare, genSalt, hash}  from "bcrypt";
 import {renameSync, unlinkSync} from "fs"
 import userModel from "../models/userModel.js";
+import bcrypt from "bcrypt";
 
 const maxAge = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 
 // Create JWT token
 const createToken = (id, email) => {
-  return jwt.sign({ id, email }, process.env.JWT_KEY, {
+  return jwt.sign({ id, email }, process.env.JWT_SECRET, {
     expiresIn: maxAge,
   });
 };
@@ -56,35 +57,37 @@ export const signup = async (req, res, next) => {
   }
 };
 
+
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    // console.log(req.body);
 
     if (!email || !password) {
-      return res.status(400).send("Email and password are required");
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
     const user = await UserModel.findOne({ email });
-    // console.log(":::",user);
+
     if (!user) {
-      return res.status(404).send("User with given email is not found");
+      return res.status(404).json({ message: "User with given email is not found" });
     }
 
-    const auth = await compare(password, user.password);
-    // console.log(auth);
+    const auth = await bcrypt.compare(password, user.password);
     if (!auth) {
-      return res.status(400).send("Password is incorrect");
+      return res.status(400).json({ message: "Password is incorrect" });
     }
 
-    const token = createToken(user.id, user.email);
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: "3d",
+    });
 
     res.cookie("jwt", token, {
       maxAge,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
+      sameSite: "Lax",
     });
+
 
     return res.status(200).json({
       user: {
@@ -96,10 +99,11 @@ export const login = async (req, res, next) => {
         image: user.image,
         color: user.color,
       },
+      token,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -174,8 +178,6 @@ export const updateProfileImage = async(req,res) => {
       {image:fileName},
       {new:true, runValidators:true}
     )
-
-    console.log("updatedUser", updatedUser);
 
     return res.status(200).json({
         image: updatedUser.image,

@@ -68,7 +68,7 @@ const handleSignup = async() => {
         if(response.status === 201){
           setUserInfo(response.data.user)
             navigate("/profile")
-            // toast.success("Account is created")
+            toast.success("Account is created")
         }
     }
 

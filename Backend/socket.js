@@ -5,7 +5,7 @@ import channelModel from "./models/channelModel.js";
 const setupSocket = (server) => {
     const io = new SocketIOServer(server, {
         cors: {
-            origin: "https://reactchatapplicationfrontend.onrender.com",
+            origin: "http://localhost:5173",
             methods: ["GET", "POST"],
             credentials: true,
         }
@@ -28,13 +28,11 @@ const setupSocket = (server) => {
         const recipientSocketId = userSocketMap.get(message.recipient)
 
         const createMessage = await messageModel.create(message)
-        console.log("createMessage+++++++", createMessage);
 
         const messageData = await messageModel.findById(createMessage._id)
         .populate("sender","id email firstname lastname image color")
         .populate("recipient","id email firstname lastname image color")
 
-        console.log("messageData:::::",messageData);
 
         if(recipientSocketId){
             io.to(recipientSocketId).emit("recieveMessage",messageData)
