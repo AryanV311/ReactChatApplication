@@ -1,12 +1,13 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
-import { Auth } from "./pages/auth/auth";
+
 import { Chat } from "./pages/chat/chat";
 import { Profile } from "./pages/profile/profile";
 import { useAppStore } from "./store";
 import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { AppContext } from "./context/AppContext";
+import { Auth } from "./pages/auth/Auth";
 
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
