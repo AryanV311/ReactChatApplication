@@ -5,7 +5,7 @@ import { createContext } from "react";
 export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
-    const api_url = "http://localhost:5000";
+    const api_url = "https://reactchatapplicationbackend.onrender.com";
 
     const value= {
         api_url,
