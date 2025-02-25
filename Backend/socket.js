@@ -5,7 +5,7 @@ import channelModel from "./models/channelModel.js";
 const setupSocket = (server) => {
     const io = new SocketIOServer(server, {
         cors: {
-            origin: "http://localhost:5173",
+            origin: "https://reactchatapplicationfrontend.onrender.com",
             methods: ["GET", "POST"],
             credentials: true,
         }
