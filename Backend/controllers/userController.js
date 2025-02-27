@@ -41,7 +41,7 @@ export const signup = async (req, res, next) => {
       maxAge,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
+      sameSite: "Lax",
     });
 
     return res.status(201).json({
@@ -85,7 +85,7 @@ export const login = async (req, res, next) => {
       maxAge,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
+      sameSite: "Lax",
     });
 
 

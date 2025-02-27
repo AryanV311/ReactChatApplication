@@ -14,7 +14,7 @@ import channelRoute from "./router/channelRouter.js";
 const app = express();
 app.use(
     cors({
-        origin:"https://reactchatapplicationfrontend.onrender.com",
+        origin:"http://localhost:5173",
         methods:["GET","POST","PUT","DELETE","PATCH"],
         credentials:true
     })
